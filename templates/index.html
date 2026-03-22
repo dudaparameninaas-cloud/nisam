@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Nisa'm ❤️ | Lütfen Oku</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            min-height: 100vh;
+            background: radial-gradient(ellipse at center, #0a0f1e 0%, #03060c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', 'Poppins', 'Montserrat', system-ui, sans-serif;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* YAĞMUR */
+        .rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .drop {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.6);
+            width: 2px;
+            height: 15px;
+            border-radius: 0 0 2px 2px;
+            animation: fall linear infinite;
+        }
+        @keyframes fall {
+            to { transform: translateY(100vh); }
+        }
+
+        /* ŞİMŞEK efekti (flaş) */
+        .flash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 245, 200, 0.9);
+            pointer-events: none;
+            z-index: 999;
+            opacity: 0;
+            animation: lightning 0.15s ease-out;
+        }
+        @keyframes lightning {
+            0% { opacity: 0.9; }
+            100% { opacity: 0; }
+        }
+
+        /* ANA KUTU */
+        .message-container {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 600px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(12px);
+            border-radius: 48px;
+            padding: 30px 24px;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* giriş kutusu (ilk küçük kutu) */
+        .intro-box {
+            background: #11161f;
+            border-radius: 32px;
+            padding: 25px 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid #ff3b6f;
+            animation: fadeSlideUp 0.6s ease;
+        }
+        .intro-box p {
+            color: #f0f0f0;
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+        .intro-box small {
+            color: #ff9f6e;
+            font-style: italic;
+        }
+        button.devam-btn {
+            background: linear-gradient(135deg, #ff3b6f, #ff8e53);
+            border: none;
+            padding: 14px 32px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 5px 15px rgba(255,59,111,0.3);
+            margin-top: 10px;
+        }
+        button.devam-btn:hover {
+            transform: scale(1.02);
+            background: linear-gradient(135deg, #ff2a5c, #ff7a3f);
+        }
+
+        /* yazıların göründüğü alan */
+        .story-area {
+            display: none;
+            flex-direction: column;
+            gap: 22px;
+            max-height: 55vh;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        .story-card {
+            background: rgba(10, 20, 30, 0.8);
+            backdrop-filter: blur(8px);
+            border-radius: 28px;
+            padding: 20px 18px;
+            border: 1px solid rgba(255,255,240,0.2);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            animation: fadeGlow 0.8s ease forwards;
+            transition: all 0.2s;
+        }
+        .story-card p {
+            font-size: 1.1rem;
+            line-height: 1.45;
+            color: #ffe9e0;
+            font-weight: 500;
+            text-shadow: 0 0 2px #ffb78c;
+            word-break: break-word;
+        }
+        /* parlayan efekt */
+        .glow-text {
+            animation: textPulse 1.5s infinite alternate;
+        }
+        @keyframes textPulse {
+            0% { text-shadow: 0 0 1px #fff0c0; }
+            100% { text-shadow: 0 0 10px #ffb347, 0 0 15px #ff7e5e; }
+        }
+        @keyframes fadeGlow {
+            from { opacity: 0; transform: translateY(25px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* EVET / HAYIR butonları */
+        .decision-area {
+            display: none;
+            margin-top: 30px;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn-evet {
+            background: #2a7a3b;
+            color: white;
+            border: none;
+            padding: 14px 34px;
+            border-radius: 60px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 0 12px #2aff6e55;
+        }
+        .btn-hayir {
+            background: #a12a2a;
+            color: white;
+            border: none;
+            padding: 14px 34px;
+            border-radius: 60px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.1s linear;
+            position: relative;
+        }
+
+        /* kaçan hayır butonu için */
+        .hayir-mesaj {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 1.2rem;
+            color: #ffb6a0;
+            font-weight: bold;
+            background: #000000aa;
+            padding: 8px;
+            border-radius: 40px;
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        /* mobil uyum */
+        @media (max-width: 550px) {
+            .story-card p { font-size: 0.95rem; }
+            .btn-evet, .btn-hayir { padding: 10px 24px; font-size: 1.2rem; }
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #1e1e2a; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #ff6a4b; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="rain" id="rainContainer"></div>
+<div id="flashEffect" class="flash" style="display: none;"></div>
+
+<div class="message-container" id="appContainer">
+    <!-- İlk küçük kutu (JS ile gelen) -->
+    <div id="introBox" class="intro-box">
+        <p>🌙 Nisa'm... 🌙</p>
+        <p>lütfen hiçbir şey söyleme, sadece oku ve izle... 🤍</p>
+        <button class="devam-btn" id="devamBtn">💔 devam et ve hisset 💔</button>
+    </div>
+
+    <!-- Duygu mesajlarının listeleneceği alan -->
+    <div id="storyArea" class="story-area"></div>
+
+    <!-- EVET / HAYIR butonları -->
+    <div id="decisionArea" class="decision-area">
+        <button class="btn-evet" id="evetBtn">❤️ EVET ❤️</button>
+        <button class="btn-hayir" id="hayirBtn">💔 HAYIR 💔</button>
+    </div>
+</div>
+
+<script>
+    // ======================= YAĞMUR OLUŞTUR =======================
+    function createRain() {
+        const rainContainer = document.getElementById('rainContainer');
+        const dropCount = 180;
+        for (let i = 0; i < dropCount; i++) {
+            let drop = document.createElement('div');
+            drop.classList.add('drop');
+            let left = Math.random() * 100;
+            let width = 1 + Math.random() * 3;
+            let height = 12 + Math.random() * 18;
+            let duration = 0.5 + Math.random() * 1.5;
+            let delay = Math.random() * 5;
+            drop.style.left = left + '%';
+            drop.style.width = width + 'px';
+            drop.style.height = height + 'px';
+            drop.style.animationDuration = duration + 's';
+            drop.style.animationDelay = delay + 's';
+            drop.style.opacity = 0.3 + Math.random() * 0.6;
+            rainContainer.appendChild(drop);
+        }
+    }
+    createRain();
+
+    // ======================= ŞİMŞEK efekti =======================
+    function triggerLightning() {
+        const flashDiv = document.getElementById('flashEffect');
+        flashDiv.style.display = 'block';
+        setTimeout(() => {
+            flashDiv.style.display = 'none';
+        }, 150);
+    }
+    // rastgele şimşek (12-20 saniye arası)
+    setInterval(() => {
+        if (Math.random() > 0.65) triggerLightning();
+    }, 9000);
+
+    // ======================= Duygu metinleri (sırayla) - YAVAŞ GEÇİŞ İÇİN =======================
+    const mesajlar = [
+        "🌧️ nisam..... 🌧️",
+        "ömrüm biliyorum seni üzdüm ve kırdım. hatalar ettim, sana hak etmeyeceğin şeyler söyledim....",
+        "o kelimelerin hiç birini sen hak etmedin. evet inan bunun pişmanlığını da içimde dehşetli şekilde çekiyorum 💔",
+        "ömrüme ömür katanım lütfen beni de anlamaya çalış. benim de bir erkeklik damarım tutuldu seni kıskandım işte... anla erkek değil miyim? kurban olduğum kıskandım işte 🥺",
+        "emin ol senin düşündüğünden bile fazla seviyorum. her anımı seninle beraber yaşamak istiyorum 😔",
+        "seni kırdığım için özür diliyorum. beni bağışlamak ya da bağışlamamak sana kalmış ama emin ol seni kırdığım için kendime çok kızgınım güzel kızım ya....",
+        "lütfen beni affet, tekrar aynı hataları yapmayalım. eskisinden daha sağlam devam edelim. sen benim ruhumun parçasısın. ben sensiz yaşamak istemiyorum...",
+        "sana olan hislerimin kelimelere dökülecek tarifi bile yok. anla beni nasıl sevdiğimi senin yanında...",
+        "beni affeder misin ömrümü yolunda kurban verdiğim? 🥺"
+    ];
+
+    let currentMessageIndex = 0;
+    let storyArea = document.getElementById('storyArea');
+    let decisionArea = document.getElementById('decisionArea');
+    let devamBtn = document.getElementById('devamBtn');
+    let introBox = document.getElementById('introBox');
+
+    let audio = null;
+    let musicStarted = false;
+
+    // Arka plan müziği (nisa.mp3) başlat - gizli, kapatma butonu yok
+    function startBackgroundMusic() {
+        if (musicStarted) return;
+        musicStarted = true;
+        audio = new Audio('/static/nisa.mp3');
+        audio.loop = true;
+        audio.volume = 0.45;
+        audio.play().catch(e => console.log("otomatik müzik engeli, kullanıcı etkileşiminde çalacak"));
+    }
+
+    // Devam butonuna tıklandığında: müziği başlat, intro kutusunu kaldır, mesajları sırayla göstermeye başla
+    devamBtn.addEventListener('click', () => {
+        if (!musicStarted) {
+            if (audio === null) {
+                audio = new Audio('/static/nisa.mp3');
+                audio.loop = true;
+                audio.volume = 0.45;
+            }
+            audio.play().catch(err => console.warn);
+            musicStarted = true;
+        } else {
+            if(audio && audio.paused) audio.play().catch(e=>console.log);
+        }
+
+        introBox.style.display = 'none';
+        storyArea.style.display = 'flex';
+        if (currentMessageIndex === 0) {
+            showNextMessage();
+        }
+    });
+
+    // =============== YAVAŞ GEÇİŞ İÇİN SÜRE AYARI ===============
+    // Her mesaj arasında 3.5 saniye bekleyecek (yavaş ve duygusal)
+    const MESSAGE_DELAY = 3500; // 3.5 saniye - yavaş geçiş
+    
+    function showNextMessage() {
+        if (currentMessageIndex < mesajlar.length) {
+            const msgText = mesajlar[currentMessageIndex];
+            const card = document.createElement('div');
+            card.classList.add('story-card');
+            const paragraph = document.createElement('p');
+            paragraph.innerText = msgText;
+            paragraph.classList.add('glow-text');
+            card.appendChild(paragraph);
+            storyArea.appendChild(card);
+            storyArea.scrollTop = storyArea.scrollHeight;
+            currentMessageIndex++;
+
+            if (currentMessageIndex === mesajlar.length) {
+                // mesajlar bitti, karar butonlarını göster (biraz bekledikten sonra)
+                setTimeout(() => {
+                    decisionArea.style.display = 'flex';
+                    const sonucYazi = document.createElement('div');
+                    sonucYazi.style.marginTop = '12px';
+                    sonucYazi.style.fontSize = '0.9rem';
+                    sonucYazi.style.color = '#ffc285';
+                    sonucYazi.innerText = '❄️ kalbim sende... cevabını bekliyorum ❄️';
+                    storyArea.appendChild(sonucYazi);
+                    storyArea.scrollTop = storyArea.scrollHeight;
+                }, 1200);
+            } else {
+                // YAVAŞ GEÇİŞ: bir sonraki mesajı MESSAGE_DELAY süre sonra ekle
+                setTimeout(showNextMessage, MESSAGE_DELAY);
+            }
+        }
+    }
+
+    // =============== HAYIR BUTONU KAÇMA + SÖZLER ===============
+    const hayirBtn = document.getElementById('hayirBtn');
+    const evetBtn = document.getElementById('evetBtn');
+    let hayirSözIndex = 0;
+    const hayirSözler = [
+        "😭 ama ya yapma... 😭",
+        "🥺 lütfen hayır deme kalbim kırılıyor...",
+        "💔 nolur bir şans daha...",
+        "🌧️ nisa'm ne olur...",
+        "❤️‍🩹 tekrar düşün lütfen...",
+        "🥀 sensiz olamam...",
+        "😢 beni affet ne olur...",
+        "💗 bir kez daha şans ver..."
+    ];
+
+    function rastgelePozisyon(btn) {
+        const maxX = window.innerWidth - btn.offsetWidth - 30;
+        const maxY = window.innerHeight - btn.offsetHeight - 80;
+        const randomX = Math.max(20, Math.random() * maxX);
+        const randomY = Math.max(80, Math.random() * maxY);
+        btn.style.position = 'fixed';
+        btn.style.left = randomX + 'px';
+        btn.style.top = randomY + 'px';
+        btn.style.zIndex = '999';
+    }
+
+    function showHayirMesajGeçici() {
+        let msgDiv = document.querySelector('.hayir-mesaj');
+        if (!msgDiv) {
+            msgDiv = document.createElement('div');
+            msgDiv.classList.add('hayir-mesaj');
+            document.body.appendChild(msgDiv);
+        }
+        const söz = hayirSözler[hayirSözIndex % hayirSözler.length];
+        msgDiv.innerText = söz;
+        msgDiv.style.opacity = '1';
+        msgDiv.style.transition = 'opacity 0.3s';
+        setTimeout(() => {
+            msgDiv.style.opacity = '0';
+        }, 1500);
+        hayirSözIndex++;
+    }
+
+    let hareketAktif = false;
+    hayirBtn.addEventListener('mouseenter', () => {
+        rastgelePozisyon(hayirBtn);
+        showHayirMesajGeçici();
+    });
+    hayirBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        rastgelePozisyon(hayirBtn);
+        showHayirMesajGeçici();
+    });
+    // mobil için dokunmatik
+    hayirBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        rastgelePozisyon(hayirBtn);
+        showHayirMesajGeçici();
+    });
+
+    // =============== EVET BUTONU: kalp.html'e yönlendirme ===============
+    evetBtn.addEventListener('click', () => {
+        window.location.href = '/kalp';
+    });
+
+    // sayfa yüklendiğinde story alanı gizli
+    storyArea.style.display = 'none';
+    decisionArea.style.display = 'none';
+
+    // yıldırım efekti rastgele devam
+    setInterval(() => {
+        if (Math.random() > 0.7) triggerLightning();
+    }, 11000);
+    
+    // pencerenin yeniden boyutlandırılmasında butonun ekranda kalmasını sağla
+    window.addEventListener('resize', () => {
+        if (hayirBtn.style.position === 'fixed') {
+            const btn = hayirBtn;
+            const maxX = window.innerWidth - btn.offsetWidth - 20;
+            const maxY = window.innerHeight - btn.offsetHeight - 50;
+            let left = parseFloat(btn.style.left);
+            let top = parseFloat(btn.style.top);
+            if (left > maxX) btn.style.left = maxX + 'px';
+            if (top > maxY) btn.style.top = maxY + 'px';
+            if (left < 10) btn.style.left = '20px';
+            if (top < 60) btn.style.top = '80px';
+        }
+    });
+</script>
+</body>
+</html>

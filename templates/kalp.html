@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Nisa'm | Sonsuz Aşk ❤️</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            min-height: 100vh;
+            background: radial-gradient(circle at center, #0a0a1a, #010101);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', 'Poppins', system-ui;
+            overflow: hidden;
+            position: relative;
+        }
+        /* yağmur efekti kalp sayfasında da olsun */
+        .rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .drop {
+            position: absolute;
+            background: rgba(210, 210, 255, 0.5);
+            width: 2px;
+            height: 14px;
+            border-radius: 0 0 3px 3px;
+            animation: fall linear infinite;
+        }
+        @keyframes fall {
+            to { transform: translateY(100vh); }
+        }
+        /* kalp container */
+        .heart-container {
+            position: relative;
+            z-index: 20;
+            text-align: center;
+            width: 90%;
+            max-width: 550px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        canvas {
+            display: block;
+            margin: 0 auto;
+            max-width: 95%;
+            height: auto;
+            background: transparent;
+            box-shadow: 0 0 30px rgba(255, 40, 80, 0.3);
+            border-radius: 40px;
+        }
+        .love-text {
+            margin-top: 30px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ffb88c, #ff6a5c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 12px #ff3366aa;
+            animation: softPulse 1.8s infinite;
+            letter-spacing: 1px;
+        }
+        @keyframes softPulse {
+            0% { opacity: 0.8; text-shadow: 0 0 2px #ff5e7e; }
+            100% { opacity: 1; text-shadow: 0 0 18px #ff3b6f; }
+        }
+        .alt-not {
+            margin-top: 20px;
+            color: #fff0d4;
+            background: #00000066;
+            padding: 8px 18px;
+            border-radius: 60px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(5px);
+        }
+        @media (max-width: 600px) {
+            .love-text { font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="rain" id="rainHeart"></div>
+
+<div class="heart-container">
+    <canvas id="heartCanvas" width="500" height="500" style="width:100%; height:auto; max-width:500px; aspect-ratio:1/1"></canvas>
+    <div class="love-text">🤍 nisam seni çok ama çok seviyorum bebeğim 🤍</div>
+    <div class="alt-not">💗 kalbim hep seninle 💗</div>
+</div>
+
+<script>
+    // yağmur oluşturucu
+    function createRainHeart() {
+        const rainDiv = document.getElementById('rainHeart');
+        for (let i = 0; i < 140; i++) {
+            let drop = document.createElement('div');
+            drop.classList.add('drop');
+            drop.style.left = Math.random() * 100 + '%';
+            drop.style.width = 1 + Math.random() * 3 + 'px';
+            drop.style.height = 8 + Math.random() * 18 + 'px';
+            drop.style.animationDuration = 0.6 + Math.random() * 1.2 + 's';
+            drop.style.animationDelay = Math.random() * 4 + 's';
+            drop.style.opacity = 0.3 + Math.random() * 0.6;
+            rainDiv.appendChild(drop);
+        }
+    }
+    createRainHeart();
+
+    // DALGALI KIRMIZI KALP (kenar dalgalı, içi siyah)
+    const canvas = document.getElementById('heartCanvas');
+    const ctx = canvas.getContext('2d');
+    let width = 500, height = 500;
+    canvas.width = width;
+    canvas.height = height;
+
+    let time = 0;
+    let animationId;
+
+    // Kalp çizim fonksiyonu (dalgalı kenar için sinüs dalgası ile noktalar oynatılır)
+    function drawWavyHeart(t) {
+        ctx.clearRect(0, 0, width, height);
+        
+        // merkez
+        const centerX = width/2;
+        const centerY = height/2 - 10;
+        const scale = 1.0;
+        
+        // kalp parametrik denklemi: x = 16 * sin(t)^3 , y = 13cos(t) - 5 cos(2t) - 2cos(3t) - cos(4t)
+        // ama dalgalı efekt için radyal bozma + zamana bağlı sinüs dalgası
+        
+        const points = [];
+        // 0 dan 2PI'ye kadar nokta topla
+        const steps = 140;
+        for (let i = 0; i <= steps; i++) {
+            const angle = (i / steps) * Math.PI * 2;
+            // standart kalp formülü (skalalanmış)
+            let xRaw = 16 * Math.pow(Math.sin(angle), 3);
+            let yRaw = 13 * Math.cos(angle) - 5 * Math.cos(2*angle) - 2*Math.cos(3*angle) - Math.cos(4*angle);
+            // dalgalı kenar: her noktaya radyal yönde sinüs ekle
+            const angleRad = Math.atan2(yRaw, xRaw);
+            const rad = Math.hypot(xRaw, yRaw);
+            const waveAmp = 1.8 + Math.sin(angle * 7 + t * 5) * 1.2;  // dalga genliği
+            const newRad = rad + waveAmp * 0.9;
+            let xOff = Math.cos(angleRad) * (newRad - rad);
+            let yOff = Math.sin(angleRad) * (newRad - rad);
+            let x = (xRaw + xOff) * 5.2;
+            let y = (yRaw + yOff) * 5.2;
+            // merkeze kaydır
+            let finalX = centerX + x;
+            let finalY = centerY + y;
+            points.push({x: finalX, y: finalY});
+        }
+        
+        // kalbin içini siyah doldur (iç siyah)
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+            ctx.lineTo(points[i].x, points[i].y);
+        }
+        ctx.closePath();
+        ctx.fillStyle = '#000000';
+        ctx.fill();
+        
+        // kenarları dalgalı kırmızı - parlak ve hareketli
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+            ctx.lineTo(points[i].x, points[i].y);
+        }
+        ctx.closePath();
+        ctx.lineWidth = 5 + Math.sin(t * 8) * 1.2;
+        ctx.strokeStyle = '#ff3366';
+        ctx.shadowBlur = 16;
+        ctx.shadowColor = '#ff0000aa';
+        ctx.stroke();
+        
+        // ekstra ışıltı için ikinci ince çizgi
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+            ctx.lineTo(points[i].x, points[i].y);
+        }
+        ctx.strokeStyle = '#ff8877';
+        ctx.lineWidth = 2.2;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        
+        // içte siyah olduğu için üzerine küçük ışıltılar (isteğe bağlı)
+        for (let i = 0; i < 18; i++) {
+            const sparkAngle = (Date.now() / 300 + i) % (Math.PI*2);
+            const radSp = 25 + Math.sin(Date.now() / 200 + i)*8;
+            const sx = centerX + Math.cos(sparkAngle) * radSp;
+            const sy = centerY + Math.sin(sparkAngle) * radSp - 5;
+            ctx.beginPath();
+            ctx.arc(sx, sy, 2 + Math.sin(Date.now()/150 + i)*1, 0, Math.PI*2);
+            ctx.fillStyle = `rgba(255, 100, 100, ${0.4+Math.sin(Date.now()/200)*0.3})`;
+            ctx.fill();
+        }
+    }
+
+    function animateHeart() {
+        time += 0.025;
+        drawWavyHeart(time);
+        animationId = requestAnimationFrame(animateHeart);
+    }
+    animateHeart();
+
+    // boyut değişiminde canvas netliği koruma
+    window.addEventListener('resize', () => {
+        // canvas zaten sabit 500x500 ama görsel boyut değişir
+    });
+</script>
+</body>
+</html>
